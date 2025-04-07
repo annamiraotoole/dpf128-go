@@ -81,8 +81,6 @@ func TestAPIR(t *testing.T) {
 
 	log.Printf("\n Testing end-to-end osu-crypto CGO as an APIR protocol...[correctness of KeyGen, Expand, MultiplyDB] \n")
 
-	// Also effectively tests gfmul and multiplyDB
-
 	domain_powers := []uint64{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}
 	for _, pow := range domain_powers {
 
@@ -118,10 +116,10 @@ func TestAPIR(t *testing.T) {
 
 			// make some keys
 			key0A, key1A, keySizeA := KeyGen(domain, points, valuesA, seedAuth)
-			keyExp0A := Expand(left, domain, num_points, key0A, keySizeA)  // pass in 0 as partyIdx
-			keyExp1A := Expand(right, domain, num_points, key1A, keySizeA) // pass in 1 as partyIdx
+			keyExp0A := Expand(left, domain, num_points, key0A, keySizeA)
+			keyExp1A := Expand(right, domain, num_points, key1A, keySizeA)
 
-			// multiply the keys by the database
+			// multiply the expanded keys by the database
 			out0A := MultiplyDB(keyExp0A, db, int(domain))
 			out1A := MultiplyDB(keyExp1A, db, int(domain))
 
@@ -131,15 +129,15 @@ func TestAPIR(t *testing.T) {
 
 			// NORMAL PIR ////////////////////////////////////////////////
 
-			// must be one because ALPHA is 1 here!
+			// must be 1 in order to retrieve the original unchanged record
 			valuesB := FieldElemOne()
 
 			// make some keys
 			key0B, key1B, keySizeB := KeyGen(domain, points, valuesB, seed)
-			keyExp0B := Expand(left, domain, num_points, key0B, keySizeB)  // pass in 0 as partyIdx
-			keyExp1B := Expand(right, domain, num_points, key1B, keySizeB) // pass in 1 as partyIdx
+			keyExp0B := Expand(left, domain, num_points, key0B, keySizeB)
+			keyExp1B := Expand(right, domain, num_points, key1B, keySizeB)
 
-			// multiply the keys by the database
+			// multiply the expanded keys by the database
 			out0B := MultiplyDB(keyExp0B, db, int(domain))
 			out1B := MultiplyDB(keyExp1B, db, int(domain))
 

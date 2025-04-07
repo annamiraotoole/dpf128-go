@@ -26,7 +26,7 @@ typedef uint64_t u64;
  * numPoints: The number of non-zero points / number of DPF keys (should be 1)
  * prngSeed: Seed for the source of randomness
  * keySize: Output parameter: Memory to store the size of one DPF key
- * keysOut: Output parameter: The two generated DPF keys. (length = keySize * 2)
+ * keysOut0, keysOut1: Output parameters: The two generated DPF keys. (length of each one is = keySize)
  */
 void keyGen(
     u64 domain,

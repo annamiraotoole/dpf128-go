@@ -7,8 +7,8 @@
 // Include the actual C++ implementation
 #include "libOTe/Dpf/RegularDpf.h"
 #include "cryptoTools/Common/Defines.h"
-#include "cryptoTools/Common/block.h" // For block type
-#include "cryptoTools/Crypto/PRNG.h"  // For PRNG class
+#include "cryptoTools/Common/block.h" 
+#include "cryptoTools/Crypto/PRNG.h"  
 
 // Write helper function to create a C++ span from array and length info, given type T
 template<typename T>
@@ -24,7 +24,7 @@ extern "C"
         u64* points, 
         u8* values,
         u64 numPoints,
-        u64 prngSeed, // type PRNG& in C++ verison
+        u64 prngSeed, 
         u64* keySize,
         u8* keyOut0,
         u8* keyOut1)
@@ -35,10 +35,9 @@ extern "C"
         // VALUES CAST -- Cast the u8* values to std::span<osuCrypto::block>
         std::span<osuCrypto::block> valuesSpan = make_span_from_data(reinterpret_cast<osuCrypto::block*>(values), numPoints);
 
-        // TODO do more like this, use the seed given
-        // osuCrypto::PRNG prng;
-        // prng.SetSeed(prngSeed);
-        // Make a PRNG and set its seed
+        // PRNG -- Make a PRNG and set its seed
+        // TODO change to use larger seed (128 bits instead of 64 bits)
+        // osuCrypto::PRNG prng; prng.SetSeed(prngSeed);
         osuCrypto::PRNG prng(osuCrypto::block(prngSeed, 0)); 
         
         // OUTPUT KEYS -- Create temporary C++ keys
@@ -75,7 +74,6 @@ extern "C"
         osuCrypto::Matrix<osuCrypto::block> output;
         output.resize(numPoints, domain);
 
-        // Unclear what tags is actually needed for...
         osuCrypto::Matrix<u8> tags;
         tags.resize(numPoints, domain);
 
@@ -86,17 +84,6 @@ extern "C"
         keyExp.fromBytes(keySpan);
 
         osuCrypto::RegularDpf::expand(partyIdx, domain, keyExp, [&](auto k, auto i, auto v, osuCrypto::block t) { output(k, i) = v; tags(k, i) = t.get<u8>(0) & 1; });
-
-        // SAVE in case I implement for multi-point...
-        // for (u64 i = 0; i < domain; ++i)
-        // {
-        //     for (u64 k = 0; k < numPoints; ++k)
-        //     {
-        //         osuCrypto::block act = output[k][i];
-        //         // copy every byte of block
-        //         std::memcpy(expandedKey + 16*(k*domain+i), &act, 16); 
-        //     }
-        // }
 
         std::memcpy(expandedKey, output[0].data(), 16 * domain);
 

@@ -20,20 +20,18 @@ const BLOCKSIZE = 16
 const left = 0
 const right = 1
 
-// define field element type
 type FieldElem struct {
 	// 16 bytes (128 bits)
 	Data []byte
 }
 
-// define constructor
 func NewFieldElem() *FieldElem {
 	return &FieldElem{
 		Data: make([]byte, 16),
 	}
 }
 
-// TODO make faster and better
+// TODO improve this function
 func NewRandomElem() *FieldElem {
 	elem := NewFieldElem()
 	for i := 0; i < len(elem.Data); i++ {
@@ -48,7 +46,7 @@ func FieldElemOne() *FieldElem {
 	return elem
 }
 
-// TODO make the seed full 16 bytes
+// TODO make the seed full 128 bits instead of 64 bits
 func KeyGen(domain uint64, points []uint64, values *FieldElem, seed uint64) ([]byte, []byte, uint64) {
 
 	// If you are allocating this buffer on the go side, you can precompute the size of the buffer it will be
@@ -79,19 +77,17 @@ func KeyGen(domain uint64, points []uint64, values *FieldElem, seed uint64) ([]b
 
 	reportedKeySize := make([]uint64, 1)
 
-	// Call the function
 	C.keyGen(
 		(C.uint64_t)(domain),
 		(*C.uint64_t)(&points[0]),
 		(*C.uint8_t)(&values.Data[0]),
 		(C.uint64_t)(numPoints),
-		(C.uint64_t)(seed), // TODO BUG HERE, unused now
+		(C.uint64_t)(seed),
 		(*C.uint64_t)(&reportedKeySize[0]),
 		(*C.uint8_t)(&key0[0]),
 		(*C.uint8_t)(&key1[0]),
 	)
 
-	// Read result
 	if reportedKeySize[0] != expectedKeySize {
 		log.Println("Key size mismatch")
 		log.Println("Expected:", expectedKeySize)
@@ -103,13 +99,9 @@ func KeyGen(domain uint64, points []uint64, values *FieldElem, seed uint64) ([]b
 
 func Expand(partyIdx uint64, domain uint64, numPoints uint64, key []byte, keySize uint64) []byte {
 
-	// log.Println("Expanding key...")
-	// log.Println("Key length:", len(key))
-
 	// Allocate memory for the output
 	keyExp := make([]byte, 16*domain*numPoints)
 
-	// Call the function
 	C.expand(
 		(C.uint64_t)(partyIdx),
 		(C.uint64_t)(domain),
@@ -127,8 +119,6 @@ func Expand(partyIdx uint64, domain uint64, numPoints uint64, key []byte, keySiz
 // we would have len(DB) = length*16, but DB might be passed as a pointer
 // to a larger buffer, so we can't rely on the len function
 func MultiplyDB(keyExp []byte, DB []byte, length int) *FieldElem {
-
-	// log.Println("Multiplying keyExp with DB...")
 
 	// Allocate memory for the output
 	out := NewFieldElem()
