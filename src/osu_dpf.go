@@ -1,6 +1,5 @@
 package dpf128
 
-// TODO replace "/path/to/libOTe" to match the local system or container
 /*
 #cgo CXXFLAGS: -I/path/to/libOTe/test/include -std=c++20
 #cgo LDFLAGS: -L/path/to/libOTe/test/lib -Wl,-rpath,/path/to/libOTe/test/lib -llibOTeShared
@@ -16,7 +15,6 @@ import (
 	"math/rand"
 )
 
-const test_domain = uint64(150)
 const num_points = uint64(1)
 const BLOCKSIZE = 16
 const left = 0
@@ -26,16 +24,6 @@ const right = 1
 type FieldElem struct {
 	// 16 bytes (128 bits)
 	Data []byte
-}
-
-func simple() {
-	a := int(C.simple_function())
-	log.Println("a:", a)
-}
-
-func exampleSpan() {
-	span := int(C.example_span())
-	log.Println("span last number is:", span)
 }
 
 // define constructor
@@ -62,8 +50,6 @@ func FieldElemOne() *FieldElem {
 
 // TODO make the seed full 16 bytes
 func KeyGen(domain uint64, points []uint64, values *FieldElem, seed uint64) ([]byte, []byte, uint64) {
-
-	// log.Println("Generating keys...")
 
 	// If you are allocating this buffer on the go side, you can precompute the size of the buffer it will be
 	// 16 + 16 * (numTrees * depth + numTrees) + numTrees * depth
@@ -111,19 +97,6 @@ func KeyGen(domain uint64, points []uint64, values *FieldElem, seed uint64) ([]b
 		log.Println("Expected:", expectedKeySize)
 		log.Println("Got:", reportedKeySize[0])
 	}
-	// allocate for key0
-	// key0 := make([]byte, expectedKeySize)
-	// key1 := make([]byte, expectedKeySize)
-	// len0 := copy(key0, keysOut0)
-	// len1 := copy(key1, keysOut1)
-
-	// // assert
-	// if len0 != int(expectedKeySize) {
-	// 	log.Println("Key0 length mismatch")
-	// }
-	// if len1 != int(expectedKeySize) {
-	// 	log.Println("Key1 length mismatch")
-	// }
 
 	return key0, key1, expectedKeySize
 }
@@ -170,9 +143,16 @@ func MultiplyDB(keyExp []byte, DB []byte, length int) *FieldElem {
 	return out
 }
 
-func FieldMul(x *FieldElem, y *FieldElem) *FieldElem {
+func XorDPF(a []byte, b []byte, out []byte, numBytes int) {
 
-	// log.Println("Multiplying keyExp with DB...")
+	// XOR the two byte slices
+	for i := 0; i < numBytes; i++ {
+		out[i] = a[i] ^ b[i]
+	}
+
+}
+
+func FieldMul(x *FieldElem, y *FieldElem) *FieldElem {
 
 	// Allocate memory for the output
 	out := NewFieldElem()
@@ -184,15 +164,6 @@ func FieldMul(x *FieldElem, y *FieldElem) *FieldElem {
 		(*C.uint8_t)(&out.Data[0]))
 
 	return out
-}
-
-func XorDPF(a []byte, b []byte, out []byte, numBytes int) {
-
-	// XOR the two byte slices
-	for i := 0; i < numBytes; i++ {
-		out[i] = a[i] ^ b[i]
-	}
-
 }
 
 func FieldAdd(x *FieldElem, y *FieldElem, out *FieldElem) {

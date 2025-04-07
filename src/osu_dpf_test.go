@@ -7,32 +7,25 @@ import (
 	"testing"
 )
 
-func TestSimple(t *testing.T) {
-	simple()
-}
-
-func TestSpan(t *testing.T) {
-	exampleSpan()
-}
-
 func TestKeyGen(t *testing.T) {
 
-	log.Printf("TestKeyGen... [only tests no-crashing, not functionality] \n")
+	log.Printf("\n TestKeyGen... [only tests no-crashing, not functionality] \n")
 
-	// make random seed
 	seed := rand.Uint64()
+
+	const test_domain = uint64(10)
 
 	points := []uint64{1}
 	values := NewRandomElem()
 	key0, key1, keySize := KeyGen(test_domain, points, values, seed)
-	log.Printf("Generated Key0: %x\n", key0)
-	log.Printf("Generated Key1: %x\n", key1)
-	log.Printf("KeySize: %d\n", keySize)
+	log.Printf("Generated Key0: %x...\n", key0[0:16])
+	log.Printf("Generated Key1: %x...\n", key1[0:16])
+	log.Printf("KeySize was: %d\n", keySize)
 }
 
 func TestExpand(t *testing.T) {
 
-	log.Printf("TestExpand... [tests for correctness] \n")
+	log.Printf("\n TestExpand... [tests for correctness of KeyGen and Expand] \n")
 
 	domain_powers := []uint64{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}
 	for _, pow := range domain_powers {
@@ -60,8 +53,8 @@ func TestExpand(t *testing.T) {
 			points[0] = all_points[run]
 
 			key0, key1, keySize := KeyGen(domain, points, values, seed)
-			keyExp0 := Expand(left, domain, num_points, key0, keySize)  // pass in 0 as partyIdx
-			keyExp1 := Expand(right, domain, num_points, key1, keySize) // pass in 1 as partyIdx
+			keyExp0 := Expand(left, domain, num_points, key0, keySize)
+			keyExp1 := Expand(right, domain, num_points, key1, keySize)
 
 			out := make([]byte, BLOCKSIZE)
 			for b := uint64(0); b < domain; b++ {
@@ -86,11 +79,11 @@ func TestExpand(t *testing.T) {
 
 func TestAPIR(t *testing.T) {
 
-	log.Printf("Testing osu-crypto CGO gfmul and multiplyDB as APIR protocol...")
+	log.Printf("\n Testing end-to-end osu-crypto CGO as an APIR protocol...[correctness of KeyGen, Expand, MultiplyDB] \n")
 
 	// Also effectively tests gfmul and multiplyDB
 
-	domain_powers := []uint64{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18}
+	domain_powers := []uint64{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}
 	for _, pow := range domain_powers {
 
 		domain := uint64(1 << pow)

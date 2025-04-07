@@ -19,21 +19,6 @@ std::span<T> make_span_from_data(T* arr, size_t length) {
 extern "C"
 {
 
-    int simple_function() {
-        return 0;
-    };
-
-    int example_span() {
-        int numbers[] = {1, 2, 3, 4, 5};
-        std::span<int> numberSpan = make_span_from_data(numbers, 5);
-        // increase each number by 1
-        for (size_t i = 0; i < numberSpan.size(); ++i) {
-            numberSpan[i] += 1;
-        }
-        // return the last number
-        return numberSpan[4];
-    };
-
     void keyGen(
         u64 domain,
         u64* points, 

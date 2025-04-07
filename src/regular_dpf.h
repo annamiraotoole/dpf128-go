@@ -18,10 +18,6 @@ typedef uint64_t u64;
 // FUNCTIONS
 //////////////////////////////////////////////////////////////////////////////
 
-int simple_function();
-
-int example_span();
-
 /**
  * Generates a pair of DPF keys.
  * domain: The size of the evaluation domain.
